@@ -29,8 +29,7 @@ public class PolicyBreachNotificationDao {
                preparedStatement.execute();
                logger.info("Inserted in notification succesfully.");
                preparedStatement.execute();
-               preparedStatement.close();
-          } catch (SQLException e) {
+           } catch (SQLException e) {
                logger.error(e.getMessage(), e);
           }
      }

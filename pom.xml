@@ -10,6 +10,7 @@
         <version>2.6.2</version>
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
+
     <groupId>com.gl.ceir</groupId>
     <artifactId>EDRP3Process</artifactId>
     <version>0.0.1</version>
@@ -17,7 +18,7 @@
     <name>EDRP3Process</name>
 	 
     <properties>
-        <start-class>com.glocks.parser.EdrP3Process</start-class>
+<!--        <start-class>com.glocks.parser.ParserProcess</start-class>-->
         <java.version>11</java.version>
         <log4j2.version>2.20.0</log4j2.version>
     </properties>

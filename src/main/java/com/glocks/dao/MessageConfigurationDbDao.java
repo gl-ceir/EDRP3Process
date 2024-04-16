@@ -4,17 +4,48 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
+import com.glocks.parser.ParserProcess;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.springframework.stereotype.Repository;
 
+import static com.glocks.EdrP3Process.appdbName;
+
 @Repository
 public class MessageConfigurationDbDao {
 	static Logger logger = LogManager.getLogger(MessageConfigurationDbDao.class);
+
+	public static void sendMessageToMsisdn(Connection conn, String msisdn, String imei) {
+
+		MessageConfigurationDbDao messageConfigurationDbDao = new MessageConfigurationDbDao();
+		PolicyBreachNotificationDao policyBreachNotificationDao = new PolicyBreachNotificationDao();
+		MessageConfigurationDb messageDb = null;
+
+		try {
+			Optional<MessageConfigurationDb> messageDbOptional = messageConfigurationDbDao.getMessageDbTag(conn, "USER_REG_MESSAGE", appdbName);
+			if (messageDbOptional.isPresent()) {
+				messageDb = messageDbOptional.get();
+				String message = messageDb.getValue().replace("<imei>", imei);
+				PolicyBreachNotification policyBreachNotification
+						= new PolicyBreachNotification("SMS", message, "", msisdn, imei);
+				policyBreachNotificationDao.insertNotification(conn, policyBreachNotification);
+			}
+		} catch (Exception e) {
+			logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(MessageConfigurationDbDao.class.getName())).collect(Collectors.toList()).get(0) + "]");
+		}
+	}
+
+
+
+
+
+
     public Optional<MessageConfigurationDb> getMessageDbTag(Connection conn, String tag, String appdbName) {
 		ResultSet rs = null;
 		Statement stmt = null;

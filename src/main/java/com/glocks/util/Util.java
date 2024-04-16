@@ -8,6 +8,8 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.glocks.EdrP3Process.conn;
+
 public class Util {
     static Logger logger = LogManager.getLogger(Util.class);
 
@@ -34,6 +36,13 @@ public class Util {
         }
     }
 
+    public static String defaultStringtoDate(String stringDate) {
+        if (conn.toString().contains("oracle")) {
+            return "TO_DATE('" + stringDate + "','YYYY-MM-DD HH24:MI:SS')";
+        } else {
+            return " '" + stringDate + "' ";
+        }
+    }
 
     public void raiseAnAlertJar(String alertCode, String alertMessage, String alertProcess, int userId) {
         try {

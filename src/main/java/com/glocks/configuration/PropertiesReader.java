@@ -9,17 +9,16 @@ import org.springframework.stereotype.Component;
 // @PropertySource("classpath:application.properties")
 
 @PropertySources({
-        @PropertySource(
-                value = {"file:application.properties"},
-                ignoreResourceNotFound = true),
-        @PropertySource(
-                value = {"file:configuration.properties"},
-                ignoreResourceNotFound = true)
+        @PropertySource(value = {"file:application.properties"}, ignoreResourceNotFound = true),
+        @PropertySource(value = {"file:configuration.properties"}, ignoreResourceNotFound = true)
 })
 public class PropertiesReader {
 
     @Value("${appdbName}")
     public String appdbName;
+
+    @Value("${edrappdbName}")
+    public String edrappdbName;
 
     @Value("${repdbName}")
     public String repdbName;
