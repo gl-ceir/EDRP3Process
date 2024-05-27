@@ -15,30 +15,29 @@ import static com.glocks.EdrP3Process.edrappdbName;
 public class ProcessP2_5DbDao {
     static Logger logger = LogManager.getLogger(ProcessP2_5DbDao.class);
 
-    public static void insertIntoDbForP2_5(Connection conn, String csvFilePath) {
+    public static void insertIntoDbForP2_5(Connection conn, String csvFilePath, String operator) {
 
         String sdfTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
         String tableName = edrappdbName + ".edr_" + sdfTime;
         StringBuilder loadQuery = new StringBuilder();
 
-        try (Statement stmt = conn.createStatement()) {
-            stmt.execute("create table if not exists " + tableName + " like  " + edrappdbName + ".edr_20240416");
-        } catch (Exception e) {
-            logger.error("Not able to create Table " + tableName);
-        }
+//        try (Statement stmt = conn.createStatement()) {
+//            stmt.execute("create table if not exists " + tableName + " like  " + edrappdbName + ".edr_20240416");
+//        } catch (Exception e) {
+//            logger.error("Not able to create Table " + tableName);
+//        }
 
         loadQuery.append("LOAD DATA LOCAL INFILE '")
                 .append(csvFilePath)
                 .append("' INTO TABLE ")
                 .append(tableName)
                 .append(" FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' " +
-                        " IGNORE 1 LINES  (imei,imsi, msisdn,timestamp, protocol , source, fileName,imei_arrival_time)  ");  //'\r\n'
+                        " IGNORE 1 LINES  (imei,imsi, msisdn,timestamp, protocol , source, fileName, imei_arrival_time, operator_name  )  ");  //'\r\n'
         logger.info("tableName" + tableName + ";; Query :: " + loadQuery);
         try (PreparedStatement statement = conn.prepareStatement(loadQuery.toString())) {
             statement.execute(loadQuery.toString());
             logger.info("CSV file loaded into MySQL table successfully.");
-
         } catch (SQLException e) {
             logger.error(e + e.getMessage());
 

@@ -114,7 +114,7 @@ public class ParserProcess {
             } catch (Exception e) {
                 logger.warn("" + e);
             }
-            insertIntoDbForP2_5(conn,file.getAbsolutePath());
+            insertIntoDbForP2_5(conn,file.getAbsolutePath() , operator);
             String enableForeignSimHandling = getSystemConfigDetailsByTag(conn, "enableForeignSimHandling");
             fileParseLimit = getExsistingSqlFileDetails(conn, operator, source, fileName);
             fr = new FileReader(file);

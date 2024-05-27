@@ -2,12 +2,15 @@ package com.glocks.configuration;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+
+
 import org.springframework.stereotype.Repository;
 //
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 import org.springframework.orm.jpa.EntityManagerFactoryInfo;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 @Repository
 public class ConnectionConfiguration {
