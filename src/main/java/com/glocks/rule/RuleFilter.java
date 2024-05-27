@@ -2,7 +2,6 @@ package com.glocks.rule;
 
 import com.gl.rule_engine.RuleEngineApplication;
 import com.gl.rule_engine.RuleInfo;
-import com.glocks.util.Util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,16 +9,18 @@ import java.io.BufferedWriter;
 import java.sql.Connection;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
-import static com.glocks.parser.EdrP3Process.*;
+import static com.glocks.EdrP3Process.*;
+import static com.glocks.util.Util.defaultStringtoDate;
 
 public class RuleFilter {
 
     private static Logger logger = LogManager.getLogger(RuleFilter.class);
 
-    public HashMap getMyRule(Connection conn, HashMap<String, String> device_info, ArrayList<Rule> rulelist, String appDbName, String audDbName, String repDbName) {
-        logger.debug("getMyRule started  appDbName " + appdbName);
+    public HashMap getMyRule(Connection conn, HashMap<String, String> device_info, ArrayList<Rule> rulelist ) {
         BufferedWriter bw = null;
         HashMap<String, String> rule_detail = new HashMap<String, String>();    // CDR
         String output = "Yes";
@@ -32,43 +33,37 @@ public class RuleFilter {
             device_info.put("period", rule.period);
             device_info.put("action", rule.action);
             device_info.put("failed_rule_aciton", rule.failed_rule_aciton);
-
             try {
-
-                RuleInfo re = new RuleInfo(appDbName, audDbName, repDbName, device_info.get("rule_name"), "executeRule", "CDR", device_info.get("IMEI"), "0", device_info.get("IMEI").length() > 14 ? device_info.get("IMEI").substring(0, 14) : device_info.get("IMEI"),
-                        "0", device_info.get("operator"), "imei", device_info.get("operator_tag"), device_info.get("MSISDN"), device_info.get("action"),
-                        device_info.get("IMSI"), device_info.get("record_type"), device_info.get("system_type"), device_info.get("source"),
+                RuleInfo re = new RuleInfo( edrappdbName, appdbName, auddbName, repdbName, device_info.get("rule_name"), "executeRule", "CDR", device_info.get("IMEI"), "0", device_info.get("IMEI").length() > 14 ? device_info.get("IMEI").substring(0, 14) : device_info.get("IMEI"),
+                        "0", device_info.get("operator"), "imei", device_info.get("operator_tag"), device_info.get("msisdn"), device_info.get("action"),
+                        device_info.get("imsi"), device_info.get("timestamp"), device_info.get("protocol"), device_info.get("source"),
                         device_info.get("raw_cdr_file_name"), device_info.get("imei_arrival_time"), "txnId", "fileArray", device_info.get("period"), conn, bw);
 
                 logger.debug("Rule Started .." + device_info.get("rule_name"));
-
                 output = RuleEngineApplication.startRuleEngine(re);
                 logger.debug("Rule End .." + device_info.get("rule_name") + "; Rule Output:" + output + " ;  Expected O/T : " + device_info.get("output"));
             } catch (Exception e) {
-                logger.error("Error1 " + e);
+                logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(RuleFilter.class.getName())).collect(Collectors.toList()).get(0) + "]");
             }
             if (device_info.get("output").equalsIgnoreCase(output)) {
                 rule_detail.put("rule_name", null);
             } else {
-                RuleInfo re = new RuleInfo(appdbName, auddbName, repdbName, device_info.get("rule_name"), "executeAction", "CDR", device_info.get("IMEI"), "0", device_info.get("file_name"),
-                        "0", device_info.get("operator"), "error", device_info.get("operator_tag"), device_info.get("MSISDN"), device_info.get("action"),
-                        device_info.get("IMSI"), device_info.get("record_type"), device_info.get("system_type"), device_info.get("source"),
+                RuleInfo re = new RuleInfo(edrappdbName, appdbName, auddbName, repdbName, device_info.get("rule_name"), "executeAction", "CDR", device_info.get("IMEI"), "0", device_info.get("file_name"),
+                        "0", device_info.get("operator"), "error", device_info.get("operator_tag"), device_info.get("msisdn"), device_info.get("action"),
+                        device_info.get("imsi"), device_info.get("timestamp"), device_info.get("protocol"), device_info.get("source"),
                         device_info.get("raw_cdr_file_name"), device_info.get("imei_arrival_time"), "txnId", "fileArray", device_info.get("period"), conn, bw);
                 try {
                     action_output = RuleEngineApplication.startRuleEngine(re);
                 } catch (Exception e) {
-                    logger.error("Error2 " + e);
+                    logger.error(e + "in [[[" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(RuleFilter.class.getName())).collect(Collectors.toList()).get(0) + "]");
                 }
-
                 if (device_info.get("rule_name").equalsIgnoreCase("TEST_IMEI")) {
                     rule_detail.put("test_imei", "true");
                 }
-
                 if (device_info.get("failed_rule_aciton").equalsIgnoreCase("rule")) {
                     if (!device_info.get("rule_name").equalsIgnoreCase("EXISTS_IN_ALL_ACTIVE_DB")) {
                         insertInDeviceInvalidDb(conn, device_info);
                     }
-
                     rule_detail.put("rule_name", null);
                 } else {
                     rule_detail.put("period", device_info.get("period"));
@@ -87,23 +82,13 @@ public class RuleFilter {
     }
 
     public void insertInDeviceInvalidDb(Connection conn, HashMap<String, String> device_info) {
-        boolean isOracle = conn.toString().contains("oracle");
-        String dateFunction = Util.defaultDate(isOracle);
-        Statement stmt = null;
-        try {
-            String query = "insert into " + appdbName + ".invalid_imei (IMEI_ESN_MEID ,RULE_NAME ,OPERATOR_NAME, SN_OF_DEVICE ,OPERATOR_TYPE ,  FILE_NAME ,RECORD_DATE) "
-                    + " values ( '" + device_info.get("IMEI") + "','" + device_info.get("rule_name") + "','" + device_info.get("operator") + "', ' ' ,'" + device_info.get("operator_tag") + "' ,'" + device_info.get("file_name") + "'  , " + defaultStringtoDate(device_info.get("record_time")) + "  ) ";
+        try (Statement stmt = conn.createStatement();) {
+            String query = "insert into " + edrappdbName + ".invalid_imei (IMEI_ESN_MEID ,RULE_NAME ,OPERATOR_NAME, SN_OF_DEVICE ,OPERATOR_TYPE ,  FILE_NAME ,RECORD_DATE, imsi, msisdn ) "
+                    + " values ( '" + device_info.get("IMEI") + "','" + device_info.get("rule_name") + "','" + device_info.get("operator") + "', ' ' ,'" + device_info.get("operator_tag") + "' ,'" + device_info.get("file_name") + "'  , " + defaultStringtoDate(device_info.get("record_time")) + " , '" + device_info.get("imsi") + "' ,   '" + device_info.get("msisdn") + "' ) ";
             logger.debug("Qury " + query);
-            stmt = conn.createStatement();
             stmt.executeUpdate(query);
         } catch (Exception e) {
-            logger.error(this.getClass().getName() + e);
-        } finally {
-            try {
-                stmt.close();
-            } catch (Exception ex) {
-                logger.error(this.getClass().getName() + ex);
-            }
+            logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(RuleFilter.class.getName())).collect(Collectors.toList()).get(0) + "]");
         }
     }
 }
