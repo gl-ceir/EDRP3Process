@@ -10,6 +10,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import static com.glocks.EdrP3Process.appdbName;
 import static com.glocks.EdrP3Process.edrappdbName;
 
 public class ProcessP2_5DbDao {
@@ -19,7 +20,7 @@ public class ProcessP2_5DbDao {
 
         String sdfTime = new SimpleDateFormat("yyyyMMdd").format(new Date());
 
-        String tableName = edrappdbName + ".edr_" + sdfTime;
+        String tableName = appdbName + ".edr_" + sdfTime;
         StringBuilder loadQuery = new StringBuilder();
 
 //        try (Statement stmt = conn.createStatement()) {
@@ -33,7 +34,7 @@ public class ProcessP2_5DbDao {
                 .append("' INTO TABLE ")
                 .append(tableName)
                 .append(" FIELDS TERMINATED BY ',' LINES TERMINATED BY '\\n' " +
-                        " IGNORE 1 LINES  (imei,imsi, msisdn,timestamp, protocol , source, fileName, imei_arrival_time, operator_name  )  ");  //'\r\n'
+                        " IGNORE 1 LINES  (actual_imei,imsi, msisdn,edr_date_time, protocol , source, file_name, imei_arrival_time, operator_name  )  ");  //'\r\n'
         logger.info("tableName" + tableName + ";; Query :: " + loadQuery);
         try (PreparedStatement statement = conn.prepareStatement(loadQuery.toString())) {
             statement.execute(loadQuery.toString());

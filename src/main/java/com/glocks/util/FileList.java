@@ -66,7 +66,7 @@ public class FileList {
             Path temp = Files.move(Paths.get(fileFolderPath + fileName),
                     Paths.get(storagePath + opertorName + "/" + source + "/" + date + "/" + fileName));
             if (temp != null) {
-                logger.info("File renamed and moved successfully");
+                logger.info("File renamed and moved successfully to {} " ,storagePath + opertorName + "/" + source + "/" + date + "/" + fileName);
             }
         } catch (Exception e) {
             logger.error("Error :" + e);

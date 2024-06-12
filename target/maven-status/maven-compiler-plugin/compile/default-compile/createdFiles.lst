@@ -1,0 +1,17 @@
+com/glocks/EdrP3Process.class
+com/glocks/configuration/ConnectionConfiguration.class
+com/glocks/rule/RuleFilter.class
+com/glocks/dao/PolicyBreachNotification.class
+com/glocks/parser/service/insertUpdateQueryBuilder.class
+com/glocks/dao/MessageConfigurationDb.class
+com/glocks/dao/MessageConfigurationDbDao.class
+com/glocks/parser/service/InsertDbDao.class
+com/glocks/parser/ParserProcess.class
+com/glocks/configuration/PropertiesReader.class
+com/glocks/rule/Rule.class
+com/glocks/dao/PolicyBreachNotificationDao.class
+com/glocks/util/Util.class
+com/glocks/parser/service/SelectStatementResponse.class
+com/glocks/dao/ModuleAuditTrail.class
+com/glocks/util/FileList.class
+com/glocks/dao/ProcessP2_5DbDao.class

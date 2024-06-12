@@ -43,7 +43,7 @@ public class insertUpdateQueryBuilder {
                 : "" + edrappdbName + ".active_unique_foreign_imei";
         return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction + "" + ", failed_rule_date=" + failedRuleDate + "" + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',"
                 + "period='" + period + "',update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name") + "',update_imei_arrival_time= " + defaultStringtoDate(device_info.get("imei_arrival_time")) + " ,update_source ='" + device_info.get("source") + "',server_origin ='" + server_origin + "',action='" + finalAction + "' , imsi = '" + device_info.get("imsi")
-                + "' , is_used = '" + device_info.get("isUsedFlag") + "'  , test_imei = '" + device_info.get("testImeiFlag") + "'  , msisdn = '" + device_info.get("msisdn") + "'    "
+                + "' , is_used = '" + device_info.get("isUsedFlag") + "'  , test_imei = '" + device_info.get("testImeiFlag") + "'  , msisdn = '" + device_info.get("msisdn") + "'  , actual_operator = '" + device_info.get("actual_operator") + "'      "
                 + "      where imei ='" + device_info.get("modified_imei") + "'";
     }
 
@@ -56,7 +56,8 @@ public class insertUpdateQueryBuilder {
                 + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',period='" + period + "',"
                 + " update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name") + "',update_imei_arrival_time=" + defaultStringtoDate(device_info.get("imei_arrival_time"))
                 + ",     update_source ='" + device_info.get("source") + "',server_origin ='" + server_origin + "',action='" + finalAction
-                + "', imsi = '" + device_info.get("imsi") + "'   , msisdn = '" + device_info.get("msisdn") + "'  , is_used = '" + device_info.get("isUsedFlag") + "'   , test_imei = '" + device_info.get("testImeiFlag") + "'      where imei ='" + device_info.get("modified_imei") + "'  ";
+                + "', imsi = '" + device_info.get("imsi") + "'   , msisdn = '" + device_info.get("msisdn") + "'  , is_used = '" + device_info.get("isUsedFlag") + "'   , test_imei = '" + device_info.get("testImeiFlag") + "'  , actual_operator = '" + device_info.get("actual_operator") + "'  " +
+                " where imei ='" + device_info.get("modified_imei") + "'  ";
     }
 
     public static String getInsertDuplicateDbQuery(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
