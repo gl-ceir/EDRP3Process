@@ -24,8 +24,8 @@ public class SelectStatementResponse {
     static Logger logger = LogManager.getLogger(SelectStatementResponse.class);
 
     public static Map getActualOperator(Connection conn) {
-        Map<String, String> operatorSeries = new HashMap<String, String>();
-        String query = "select  series_start, operator_name from " + appdbName + ".operator_series";
+        Map<String, String> operatorSeries = new HashMap<String, String>();  //   Map<String,String Arr[]> operatorSeries = new HashMap<String, String Arr[] >();
+                String query = "select  series_start, operator_name from " + appdbName + ".operator_series";
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query);) {
             while (rs.next()) {
                 operatorSeries.put(rs.getString("series_start"), rs.getString("operator_name"));

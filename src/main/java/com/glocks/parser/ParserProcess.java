@@ -114,7 +114,7 @@ public class ParserProcess {
             } catch (Exception e) {
                 logger.warn("" + e);
             }
-            insertIntoDbForP2_5(conn,file.getAbsolutePath());
+            insertIntoDbForP2_5(conn,file.getAbsolutePath() , operator);
             String enableForeignSimHandling = getSystemConfigDetailsByTag(conn, "enableForeignSimHandling");
             fileParseLimit = getExsistingSqlFileDetails(conn, operator, source, fileName);
             fr = new FileReader(file);
@@ -387,8 +387,6 @@ public class ParserProcess {
             stmt = conn.createStatement();
             rs1 = stmt.executeQuery(query);
             while (rs1.next()) {
-                 {
-
                     Rule rule = new Rule(
                             rs1.getString("rule_name"),
                             rs1.getString("output"),
@@ -397,7 +395,6 @@ public class ParserProcess {
                             rs1.getString(period + "_action"),
                             rs1.getString("failed_rule_action_" + period));
                     rule_details.add(rule);
-                }
             }
             rs1.close();
             stmt.close();
@@ -420,7 +417,7 @@ public class ParserProcess {
         String query = null;
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Statement stmt = null;
-        query = "insert into  " + edrappdbName + ".edr_file_processed_detail (total_inserts_in_usage_db,total_updates_in_usage_db ,total_insert_in_dup_db , total_updates_in_dup_db , total_insert_in_null_db , total_update_in_null_db , startTime , endTime ,operator , file_name, total_records_count ,"
+        query = "insert into  " + edrappdbName + ".cdr_file_processed_detail (total_inserts_in_usage_db,total_updates_in_usage_db ,total_insert_in_dup_db , total_updates_in_dup_db , total_insert_in_null_db , total_update_in_null_db , startTime , endTime ,operator , file_name, total_records_count ,"
                 + " raw_cdr_file_name  ,source  ,foreignMsisdn  , STATUS , server_origin , total_inserts_in_foreignusage_db,total_updates_in_foreignusage_db ,total_insert_in_foreigndup_db , total_updates_in_foreigndup_db,total_error_record_count ) "
                 + "values(   '" + usageInsert + "' , '" + usageUpdate + "'  , '" + duplicateInsert + "' , '" + duplicateUpdate + "' " + " ,'" + nullInsert + "' ,'" + nullUpdate + "', " + defaultStringtoDate(df.format(P2StartTime)) + " , " + defaultStringtoDate(df.format(P2EndTime)) + " ,   '" + operator + "', '" + fileName + "' , '"
                 + (counter - 1) + "' , '" + raw_cdr_file_name + "' , '" + source + "'  , '" + foreignMsisdn + "' , 'End' ,  '" + server_origin + "'   ,   '" + usageInsertForeign + "' , '" + usageUpdateForeign + "'  , '" + duplicateInsertForeign + "' , '" + duplicateUpdateForeign + "'  , '" + errorCount + "'     )  ";

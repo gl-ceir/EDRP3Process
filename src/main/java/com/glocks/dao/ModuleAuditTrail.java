@@ -22,7 +22,7 @@ public class ModuleAuditTrail {
                 + "info, count2,action,"
                 + "server_name,execution_time,module_name,failure_count) "
                 + "values('201','Initial', '" + featureName + "', '" + processName + "' ,'0','Insert', '"
-                + serverName + "','0','ETL','0')";
+                + serverName + "','0','EDR','0')";
         logger.info(query);
         try {
 
@@ -47,13 +47,16 @@ public class ModuleAuditTrail {
     }
 
     public static void updateModuleAudit(Connection conn, int statusCode, String status, String errorMessage, int id, long executionStartTime, long numberOfRecord, int failureCount) {
-        //    long executionFinishTiime = (new Date().getTime()) - executionStartTime;
-        long milliseconds = (new Date().getTime()) - executionStartTime;
-        String executionFinishTiime = (((milliseconds / 1000) / 60) / 60) + ":" + (((milliseconds / 1000) / 60) % 60) + ":" + ((milliseconds / 1000) % 60);
+        String exec_time = " TIMEDIFF(now() ,created_on) ";
         String query = null;
+        if (conn.toString().contains("oracle")) {
+            long milliseconds = (new Date().getTime()) - executionStartTime;
+            String executionFinishTiime = (((milliseconds / 1000) / 60) / 60) + ":" + (((milliseconds / 1000) / 60) % 60) + ":" + ((milliseconds / 1000) % 60);
+            exec_time = " '" + executionFinishTiime + "' ";
+        }
         try (Statement stmt = conn.createStatement()) {
             query = "update   " + auddbName + ".modules_audit_trail set status_code='" + statusCode + "',status='" + status + "',error_message='" + errorMessage + "', count='" + (numberOfRecord - 1) + "',"
-                    + "action='update',execution_time='" + executionFinishTiime + "',failure_count='" + failureCount + "' ,modified_on=CURRENT_TIMESTAMP where  id = " + id;
+                    + "action='update',execution_time=" + exec_time + " ,failure_count='" + failureCount + "' ,modified_on=CURRENT_TIMESTAMP where  id = " + id;
             logger.info(query);
             stmt.executeUpdate(query);
         } catch (Exception e) {
