@@ -15,20 +15,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.glocks.EdrP3Process.*;
-import static com.glocks.EdrP3Process.dateFunction;
-import static com.glocks.util.Util.defaultStringtoDate;
+import static com.glocks.EdrP3Process.appdbName;
 
 
 public class SelectStatementResponse {
     static Logger logger = LogManager.getLogger(SelectStatementResponse.class);
 
-    public static Map getActualOperator(Connection conn) {
-        Map<String, String> operatorSeries = new HashMap<String, String>();  //   Map<String,String Arr[]> operatorSeries = new HashMap<String, String Arr[] >();
-                String query = "select  series_start, operator_name from " + appdbName + ".operator_series";
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query);) {
+    public static Map<String, List<Integer>> getActualOperatorBYIMSI(Connection conn) {
+        Map<String, List<Integer>> operatorSeries = new HashMap<String, List<Integer>>();  //   Map<String,String Arr[]> operatorSeries = new HashMap<String, String Arr[] >();
+        String query = "select operator_name, series_start,series_end  from " + appdbName + ".operator_series ";
+        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
-                operatorSeries.put(rs.getString("series_start"), rs.getString("operator_name"));
+                operatorSeries.put(rs.getString("operator_name"), List.of(rs.getInt("series_start"), rs.getInt("series_end")));
             }
         } catch (Exception e) {
             logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(SelectStatementResponse.class.getName())).collect(Collectors.toList()).get(0) + "]");
@@ -53,11 +51,11 @@ public class SelectStatementResponse {
     public static String getSystemConfigDetailsByTag(Connection conn, String tag) {
         String value = null;
         String query = "select value from " + appdbName + ".sys_param where tag='" + tag + "'";
-        logger.info("Query " + query);
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query);) {
             while (rs.next()) {
                 value = rs.getString("value");
             }
+            logger.info("Query [{}] , value is " , query, value);
             return value;
         } catch (Exception e) {
             logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(SelectStatementResponse.class.getName())).collect(Collectors.toList()).get(0) + "]");
@@ -114,7 +112,7 @@ public class SelectStatementResponse {
             }
         } catch (Exception e) {
             logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(SelectStatementResponse.class.getName())).collect(Collectors.toList()).get(0) + "]");
-            operator_tag = "GSM"; // if no opertor found
+            operator_tag = ""; // if no opertor found
         } finally {
             try {
                 rs1.close();
@@ -161,19 +159,9 @@ public class SelectStatementResponse {
                 logger.info("SQL " + fileNameInput1);
                 file1 = new File(fileNameInput1);
 
-                // BufferedReader reader = new BufferedReader(new FileReader(fileNameInput1));
-                // int lines = 0;
-                // while (reader.readLine() != null) {
-                // lines++;
-                // }
-                // reader.close();
                 File myObj = new File(fileNameInput1);
                 if (myObj.delete()) ;
 
-                // try (Stream<String> lines = Files.lines(file1.toPath())) {
-                // fileCount = (int) lines.count();
-                // logger.info("File Count of Sql File: " + fileCount);
-                // }
             } catch (Exception e) {
                 logger.error("File not   exist : " + e);
             }
@@ -187,22 +175,19 @@ public class SelectStatementResponse {
     public static HashMap<String, Date> getValidTac(Connection conn) {
         HashMap<String, Date> validTacMap = new HashMap<>();
         String timePeriod = getSystemConfigDetailsByTag(conn, "IS_USED_EXTENDED_DAYS");
-        logger.info("Time Period in days  : ----" + timePeriod);
+        logger.info("Time Period  : ----" + timePeriod);
         Calendar calendar = Calendar.getInstance();
         String query = "select device_id , allocation_date from " + appdbName + ".mobile_device_repository   ";
         logger.info("Query ----" + query);
-        // Get the new date after adding 50 days
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(query);) {
             while (rs.next()) {
-                //    var newDate = rs.getDate("allocation_date").toLocalDate().plusDays(Integer.valueOf(timePeriod));
                 calendar.setTime(rs.getDate("allocation_date"));
                 calendar.add(Calendar.DAY_OF_MONTH, Integer.valueOf(timePeriod));
                 validTacMap.put(rs.getString("device_id"), calendar.getTime());
             }
         } catch (Exception e) {
-            logger.error(e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(SelectStatementResponse.class.getName())).collect(Collectors.toList()).get(0) + "]");
+            logger.error( "Not able to determine used device or not " +   e + "in [" + Arrays.stream(e.getStackTrace()).filter(ste -> ste.getClassName().equals(SelectStatementResponse.class.getName())).collect(Collectors.toList()).get(0) + "]");
         }
-        logger.info("Query completed");
         return validTacMap;
     }
 
