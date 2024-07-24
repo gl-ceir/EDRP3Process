@@ -29,6 +29,7 @@ public class EdrP3Process {
     public static String repdbName = null;
     public static String serverName = null;
     public static String dateFunction = null;
+    public static int sleepTime=100;
     public static   int usageInsert = 0;
     public static  int usageUpdate = 0;
     public static  int duplicateInsert = 0;
@@ -56,6 +57,7 @@ public class EdrP3Process {
         auddbName = propertiesReader.auddbName;
         repdbName = propertiesReader.repdbName;
         serverName = propertiesReader.serverName;
+        sleepTime = Integer.parseInt(propertiesReader.sleepTime);
         dateFunction = Util.defaultDateNow(conn.toString().contains("oracle"));
 
         String filePath = null;

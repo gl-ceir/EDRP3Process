@@ -41,4 +41,7 @@ public class PropertiesReader {
     @Value("${localISMIStartSeries}")
     public String localISMIStartSeries;
 
+    @Value("${sleepTime}")
+    public String sleepTime;
+
 }

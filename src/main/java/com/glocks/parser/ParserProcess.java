@@ -127,6 +127,7 @@ public class ParserProcess {
             Map<String, List<Integer>> operatorMap = getActualOperatorBYIMSI(conn);
             String[] testImies = getTestImeis(conn).split(",");
             HashMap<String, Date> validTacMap = getValidTac(conn);
+            String oldimei = "0";
             while ((line = br.readLine()) != null) {
                 device_info.clear();
                 data = line.split(propertiesReader.commaDelimiter, -1);
@@ -217,6 +218,10 @@ public class ParserProcess {
                     device_info.put("failedRuleDate", failedRuleDate);
                     device_info.put("dateFunction", dateFunction);
 
+                    if (oldimei.equalsIgnoreCase(device_info.get("modified_imei"))) {
+                        Thread.sleep(sleepTime);
+                    }
+                    oldimei = device_info.get("modified_imei");
                      output = checkDeviceUsageDB(conn, device_info.get("modified_imei"), device_info.get("msisdn"), device_info.get("imei_arrival_time"), device_info.get("msisdn_type"), device_info);
                     if (output == 0) {
                         logger.debug("imei not found in active unique db");
