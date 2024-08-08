@@ -1,8 +1,8 @@
 package com.glocks.parser.service;
 
-import com.glocks.parser.ParserProcess;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import java.sql.Connection;
 import java.sql.Statement;
@@ -10,20 +10,28 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.stream.Collectors;
 
-import static com.glocks.EdrP3Process.*;
 import static com.glocks.EdrP3Process.dateFunction;
+import static com.glocks.EdrP3Process.edrappdbName;
 import static com.glocks.util.Util.defaultStringtoDate;
 
 
+@Service
 public class insertUpdateQueryBuilder {
 
     static Logger logger = LogManager.getLogger(insertUpdateQueryBuilder.class);
 
-
-    public static String getInsertUsageDbQuery(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
+    public static String getInsertUsageDbQuery(HashMap<String, String> device_info) {
         String dbName = device_info.get("msisdn_type").equalsIgnoreCase("LocalSim")
                 ? "  " + edrappdbName + ".active_unique_imei"
                 : " " + edrappdbName + ".active_unique_foreign_imei";
+        String failed_rule_name = device_info.get("failed_rule_name");
+        String failed_rule_id = device_info.get("failed_rule_id");
+        String period = device_info.get("period");
+        String finalAction = device_info.get("finalAction");
+        String failedRuleDate = device_info.get("failedRuleDate");
+        String server_origin = device_info.get("server_origin");
+        String gsmaTac = device_info.get("gsmaTac");
+        String dateFunction = device_info.get("dateFunction");
         return " insert into " + dbName
                 + " (actual_imei,msisdn,imsi,create_filename,update_filename,"
                 + "updated_on,created_on,protocol,failed_rule_id,failed_rule_name,tac,period,action "
@@ -36,22 +44,40 @@ public class insertUpdateQueryBuilder {
                 + "' , " + " " + defaultStringtoDate(device_info.get("imei_arrival_time")) + " ," + "'" + device_info.get("raw_cdr_file_name") + "' , '" + device_info.get("actual_operator") + "'   , '" + device_info.get("testImeiFlag") + "'  , '" + device_info.get("isUsedFlag") + "'           )";
     }
 
-    public static String getUpdateUsageDbQueryWithRawCdrFileName(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
+    public static String getUpdateUsageDbQueryWithRawCdrFileName(HashMap<String, String> device_info) {
         String dbName
                 = device_info.get("msisdn_type").equalsIgnoreCase("LocalSim")
                 ? "" + edrappdbName + ".active_unique_imei"
                 : "" + edrappdbName + ".active_unique_foreign_imei";
-        return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction + "" + ", failed_rule_date=" + failedRuleDate + "" + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',"
-                + "period='" + period + "',update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name") + "',update_imei_arrival_time= " + defaultStringtoDate(device_info.get("imei_arrival_time")) + " ,update_source ='" + device_info.get("source") + "',server_origin ='" + server_origin + "',action='" + finalAction + "' , imsi = '" + device_info.get("imsi")
+        String failed_rule_name = device_info.get("failed_rule_name");
+        String failed_rule_id = device_info.get("failed_rule_id");
+        String period = device_info.get("period");
+        String finalAction = device_info.get("finalAction");
+        String failedRuleDate = device_info.get("failedRuleDate");
+        String server_origin = device_info.get("server_origin");
+        String gsmaTac = device_info.get("gsmaTac");
+        String dateFunction = device_info.get("dateFunction");
+        return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction + "" + ", failed_rule_date=" + failedRuleDate + ""
+                + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',"
+                + "period='" + period + "',update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name") + "',update_imei_arrival_time= " + defaultStringtoDate(device_info.get("imei_arrival_time"))
+                + " ,update_source ='" + device_info.get("source") + "',server_origin ='" + server_origin + "',action='" + finalAction + "' , imsi = '" + device_info.get("imsi")
                 + "' , is_used = '" + device_info.get("isUsedFlag") + "'  , test_imei = '" + device_info.get("testImeiFlag") + "'  , msisdn = '" + device_info.get("msisdn") + "'  , actual_operator = '" + device_info.get("actual_operator") + "'      "
                 + "      where imei ='" + device_info.get("modified_imei") + "'";
     }
 
-    public static String getUpdateUsageDbQuery(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
+    public static String getUpdateUsageDbQuery(HashMap<String, String> device_info) {
         String dbName
                 = device_info.get("msisdn_type").equalsIgnoreCase("LocalSim")
                 ? "" + edrappdbName + ".active_unique_imei"
                 : "" + edrappdbName + ".active_unique_foreign_imei";
+        String failed_rule_name = device_info.get("failed_rule_name");
+        String failed_rule_id = device_info.get("failed_rule_id");
+        String period = device_info.get("period");
+        String finalAction = device_info.get("finalAction");
+        String failedRuleDate = device_info.get("failedRuleDate");
+        String server_origin = device_info.get("server_origin");
+        String gsmaTac = device_info.get("gsmaTac");
+        String dateFunction = device_info.get("dateFunction");
         return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction + "" + ", failed_rule_date=" + failedRuleDate + ""
                 + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',period='" + period + "',"
                 + " update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name") + "',update_imei_arrival_time=" + defaultStringtoDate(device_info.get("imei_arrival_time"))
@@ -60,12 +86,19 @@ public class insertUpdateQueryBuilder {
                 " where imei ='" + device_info.get("modified_imei") + "'  ";
     }
 
-    public static String getInsertDuplicateDbQuery(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
+    public static String getInsertDuplicateDbQuery(HashMap<String, String> device_info) {
         String dbName
                 = device_info.get("msisdn_type").equalsIgnoreCase("LocalSim")
                 ? "" + edrappdbName + ".active_imei_with_different_imsi"
                 : "" + edrappdbName + ".active_foreign_imei_with_different_imsi";
-
+        String failed_rule_name = device_info.get("failed_rule_name");
+        String failed_rule_id = device_info.get("failed_rule_id");
+        String period = device_info.get("period");
+        String finalAction = device_info.get("finalAction");
+        String failedRuleDate = device_info.get("failedRuleDate");
+        String server_origin = device_info.get("server_origin");
+        String gsmaTac = device_info.get("gsmaTac");
+        String dateFunction = device_info.get("dateFunction");
         return "insert into  " + dbName
                 + "  (actual_imei,msisdn,imsi,create_filename,update_filename,"
                 + "updated_on,created_on,protocol,failed_rule_id,failed_rule_name,tac,period,action  "
@@ -78,28 +111,43 @@ public class insertUpdateQueryBuilder {
                 + server_origin + "' , " + "'" + device_info.get("raw_cdr_file_name") + "'," + "" + defaultStringtoDate(device_info.get("imei_arrival_time")) + "   ,  '" + device_info.get("actual_operator") + "'    ,  '" + device_info.get("testImeiFlag") + "'  ,  '" + device_info.get("isUsedFlag") + "'             )";
     }
 
-    public static String getUpdateDuplicateDbQueryWithRawCdrFileName(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
+    public static String getUpdateDuplicateDbQueryWithRawCdrFileName(HashMap<String, String> device_info) {
         String dbName
                 = device_info.get("msisdn_type").equalsIgnoreCase("LocalSim")
                 ? "" + edrappdbName + ".active_imei_with_different_imsi"
                 : "" + edrappdbName + ".active_foreign_imei_with_different_imsi";
-
-
+        String failed_rule_name = device_info.get("failed_rule_name");
+        String failed_rule_id = device_info.get("failed_rule_id");
+        String period = device_info.get("period");
+        String finalAction = device_info.get("finalAction");
+        String failedRuleDate = device_info.get("failedRuleDate");
+        String server_origin = device_info.get("server_origin");
+        String gsmaTac = device_info.get("gsmaTac");
+        String dateFunction = device_info.get("dateFunction");
         return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction
-                + "" + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',period='" + period + "',update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name")
+                + "" + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',period='" + period
+                + "',update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name")
                 + "',update_source ='" + device_info.get("source") + "',update_imei_arrival_time= " + defaultStringtoDate(device_info.get("imei_arrival_time")) + ",server_origin='" + server_origin + "'      ,action='"
                 + finalAction + "'  ,is_used='" + device_info.get("isUsedFlag") + "'   , test_imei = '" + device_info.get("testImeiFlag") + "'       , msisdn = '" + device_info.get("msisdn") + "'    where imsi='" + device_info.get("imsi") + "'  and imei='" + device_info.get("modified_imei") + "'";
     }
 
-    public static String getUpdateDuplicateDbQuery(HashMap<String, String> device_info, String dateFunction, String failed_rule_name, int failed_rule_id, String period, String finalAction, String failedRuleDate, String server_origin, String gsmaTac) {
+    public static String getUpdateDuplicateDbQuery(HashMap<String, String> device_info) {
         String dbName = device_info.get("msisdn_type").equalsIgnoreCase("LocalSim")
                 ? "" + edrappdbName + ".active_imei_with_different_imsi"
                 : "" + edrappdbName + ".active_foreign_imei_with_different_imsi";
-
-        return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction + "" + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='"
-                + failed_rule_name + "',period='" + period + "'  ,"
+        String failed_rule_name = device_info.get("failed_rule_name");
+        String failed_rule_id = device_info.get("failed_rule_id");
+        String period = device_info.get("period");
+        String finalAction = device_info.get("finalAction");
+        String failedRuleDate = device_info.get("failedRuleDate");
+        String server_origin = device_info.get("server_origin");
+        String gsmaTac = device_info.get("gsmaTac");
+        String dateFunction = device_info.get("dateFunction");
+        return "update " + dbName + " set " + "update_filename = '" + device_info.get("file_name") + "', updated_on=" + dateFunction + "" + ", modified_on=" + dateFunction + ""
+                + ", failed_rule_id='" + failed_rule_id + "', failed_rule_name='" + failed_rule_name + "',period='" + period + "'  ,"
                 + " update_raw_cdr_file_name='" + device_info.get("raw_cdr_file_name") + "',update_imei_arrival_time=" + defaultStringtoDate(device_info.get("imei_arrival_time"))
-                + " , msisdn='" + device_info.get("msisdn") + "'  ,  update_source ='" + device_info.get("source") + "',   server_origin='" + server_origin + "',action='" + finalAction + "' ,is_used='" + device_info.get("isUsedFlag") + "' , test_imei = '"
+                + " , msisdn='" + device_info.get("msisdn") + "'  ,  update_source ='" + device_info.get("source") + "',   server_origin='" + server_origin
+                + "',action='" + finalAction + "' ,is_used='" + device_info.get("isUsedFlag") + "' , test_imei = '"
                 + device_info.get("testImeiFlag") + "'        where imsi='" + device_info.get("imsi") + "' and    imei='" + device_info.get("modified_imei") + "'";
     }
 

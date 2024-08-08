@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.sql.Connection;
 
-import static com.glocks.dao.ProcessP2_5DbDao.insertIntoDbForP2_5;
 import static com.glocks.parser.ParserProcess.CdrParserProces;
 
 @EnableAsync
@@ -30,6 +29,16 @@ public class EdrP3Process {
     public static String repdbName = null;
     public static String serverName = null;
     public static String dateFunction = null;
+    public static int sleepTime=100;
+    public static   int usageInsert = 0;
+    public static  int usageUpdate = 0;
+    public static  int duplicateInsert = 0;
+    public static  int duplicateUpdate = 0;
+
+    public  static int usageInsertForeign = 0;
+    public  static int usageUpdateForeign = 0;
+    public static  int duplicateInsertForeign = 0;
+    public static  int duplicateUpdateForeign = 0;
     public static PropertiesReader propertiesReader = null;
     public static Connection conn = null;
     static Logger logger = LogManager.getLogger(EdrP3Process.class);
@@ -48,6 +57,7 @@ public class EdrP3Process {
         auddbName = propertiesReader.auddbName;
         repdbName = propertiesReader.repdbName;
         serverName = propertiesReader.serverName;
+        sleepTime = Integer.parseInt(propertiesReader.sleepTime);
         dateFunction = Util.defaultDateNow(conn.toString().contains("oracle"));
 
         String filePath = null;
@@ -61,21 +71,6 @@ public class EdrP3Process {
         }
         CdrParserProces(conn, filePath);
         System.exit(0);
-//        try {
-//            CdrParserProces(conn, filePath);
-//        } catch (Exception e) {
-//            try {
-//                conn.rollback();
-//            } catch (SQLException ex) {
-//                logger.error("" + e);
-//            }
-//        } finally {
-//            try {
-//                conn.close();
-//            } catch (SQLException ex) {
-//                logger.error(ex);
-//            }
-//            System.exit(0);
-//        }
+
     }
 }
